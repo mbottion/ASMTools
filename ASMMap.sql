@@ -1,3 +1,15 @@
+set serveroutput on
+declare 
+  n number ;
+begin
+  select 1 into n from v$instance where instance_name like '+ASM%' ;
+exception 
+  when no_data_found then 
+    dbms_output.put_line('This script must be ran against the ASM instance') ;
+    raise ;
+end ;
+/
+
 SET ECHO        OFF
 SET FEEDBACK    6
 SET HEADING     ON
@@ -44,8 +56,8 @@ select
 from    (SELECT
             db_files.disk_group_name
           , NVL(db_files.type, '<DIRECTORY>')  type
-          --, regexp_replace(SYS_CONNECT_BY_PATH(db_files.alias_name, '/'),'^/([^/]*)/.*','\1') dir
-          , regexp_replace(SYS_CONNECT_BY_PATH(db_files.alias_name, '/'),'^/(.*)/([^/]*$)','\1') dir
+          , regexp_replace(SYS_CONNECT_BY_PATH(db_files.alias_name, '/'),'^/([^/]*)/.*','\1') dir
+          --, regexp_replace(SYS_CONNECT_BY_PATH(db_files.alias_name, '/'),'^/(.*)/([^/]*$)','\1') dir
           , SYS_CONNECT_BY_PATH(db_files.alias_name, '/') full_path
           , db_files.bytes
           , db_files.space
