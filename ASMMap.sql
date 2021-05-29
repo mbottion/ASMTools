@@ -8,13 +8,13 @@ SET TIMING      OFF
 SET TRIMOUT     ON
 SET TRIMSPOOL   ON
 SET VERIFY      OFF
-​
+
 CLEAR COLUMNS
 CLEAR BREAKS
 CLEAR COMPUTES
-​
+
 COLUMN disk_group_name        FORMAT a20                  HEAD 'Disk Group'
-COLUMN DIR                    FORMAT a20                  HEAD 'Directory'
+COLUMN DIR                    FORMAT a70                  HEAD 'Directory'
 COLUMN full_path              FORMAT a75                  HEAD 'ASM File Name / Volume Name / Device Name'
 COLUMN system_created         FORMAT a8                   HEAD 'System|Created?'
 COLUMN bytes                  FORMAT 9,999,999,999,999    HEAD 'Bytes'
@@ -26,17 +26,17 @@ COLUMN type                   FORMAT a18                  HEAD 'File Type'
 COLUMN redundancy             FORMAT a12                  HEAD 'Redundancy'
 COLUMN striped                FORMAT a8                   HEAD 'Striped'
 COLUMN creation_date          FORMAT a20                  HEAD 'Creation Date'
-​
+
 BREAK ON report ON disk_group_name ON dir SKIP 1
-​
+
 COMPUTE sum LABEL ""              OF RealSize_GB Space_GB ON dir
 COMPUTE sum LABEL ""              OF RealSize_GB Space_GB ON disk_group_name
 COMPUTE sum LABEL "Grand Total: " OF RealSize_GB Space_GB ON report
-​
-spool detailASM.lst
+
 select 
    disk_group_name
   ,dir
+--  ,full_path
   ,type
   ,count(*)                  File_count
   ,sum(bytes)/1024/1024/1024 RealSize_GB
@@ -44,7 +44,8 @@ select
 from    (SELECT
             db_files.disk_group_name
           , NVL(db_files.type, '<DIRECTORY>')  type
-          ,regexp_replace(SYS_CONNECT_BY_PATH(db_files.alias_name, '/'),'^/([^/]*)/.*','\1') dir
+          --, regexp_replace(SYS_CONNECT_BY_PATH(db_files.alias_name, '/'),'^/([^/]*)/.*','\1') dir
+          , regexp_replace(SYS_CONNECT_BY_PATH(db_files.alias_name, '/'),'^/(.*)/([^/]*$)','\1') dir
           , SYS_CONNECT_BY_PATH(db_files.alias_name, '/') full_path
           , db_files.bytes
           , db_files.space
@@ -79,7 +80,7 @@ from    (SELECT
           , volume_files.creation_date
           , null
         FROM
-            ( SELECT
+            ( SELECT 
                   g.name               disk_group_name
                 , v.volume_name        volume_name
                 , v.volume_device       volume_device
@@ -95,8 +96,10 @@ from    (SELECT
 group by
    disk_group_name
   ,dir
+--  ,full_path
   ,type
-order by
-    decode (disk_group_name,'DATA','1','RECO','2','DAT2','3','Z'||disk_group_name)
-   ,decode (substr(dir,1,3),'ILI','1'||dir,'FID','2'||dir,'IST','3'||dir,'ASM','4', 'Z'||dir)
-   ,decode (type,'DATAFILE','1','TEMPFILE','2','ONLINELOG','3','ARCHIVELOG','4','5'||type)
+--order by
+--    decode (disk_group_name,'DATA','1','RECO','2','Z'||disk_group_name)
+--   ,decode ('ASM','4'||dir, 'Z'||dir)
+--   ,decode (type,'DATAFILE','1','TEMPFILE','2','ONLINELOG','3','ARCHIVELOG','4','5'||type)
+/
