@@ -1,20 +1,23 @@
+define P1="&1"
+define P2="&2"
 set serveroutput on
 declare 
   n number ;
 begin
   select 1 into n from v$instance where instance_name like '+ASM%' ;
-  if (upper('&1') in ('USAGE','HELP','-?','-H'))
+  if (upper('&P1') in ('USAGE','HELP','-?','-H'))
   then
     dbms_output.put_line('
 +---------------------------------------------------------------------------------------
 | Usage:
-|    ASMMap.sql [detailLevel]
+|    ASMMap.sql [DG] [detailLevel]
 |   
 |   Show contents of ASM Disk Groups (database directories or files)
 |   and ACFS volumes. Sizes are shown intependently of redundancy (Real Sizes)
 |   a given cases number.
 |
 |   Parameters :
+|       DG          : Disk Group                                 - Default : DATA%
 |       detailLevel : If ''FILE'', shows all files (for DB part) - Default : DIR1 (first level directory)
 |       
 +---------------------------------------------------------------------------------------
@@ -31,7 +34,8 @@ end ;
 -- ------------------------------------------------------------------------
 -- Parameters 
 -- ------------------------------------------------------------------------
-define detail_level="case when '&1' is null then 'DIR1' else upper('&1') end"
+define disk_group="case when '&P1' is null then 'DATA%' else upper('&P1') end"
+define detail_level="case when '&P2' is null then 'DIR1' else upper('&2') end"
 
 column break_dir new_value break_dir
 column dir_len   new_value dir_len
@@ -133,6 +137,7 @@ from    (SELECT
                                            JOIN v$asm_diskgroup g USING (group_number)
             ) db_files
         WHERE db_files.type IS NOT NULL
+        AND   db_files.disk_group_name like &disk_group
         START WITH (MOD(db_files.pindex, POWER(2, 24))) = 0
             CONNECT BY PRIOR db_files.rindex = db_files.pindex
         UNION
@@ -159,7 +164,8 @@ from    (SELECT
                   v$asm_file f RIGHT OUTER JOIN v$asm_volume    v USING (group_number, file_number)
                                            JOIN v$asm_diskgroup g USING (group_number)
             ) volume_files
-        WHERE volume_files.type IS NOT NULL)
+        WHERE volume_files.type IS NOT NULL
+        AND   volume_files.disk_group_name like &disk_group)
 --where
 --  disk_group_name = 'DATAC1'
 group by
