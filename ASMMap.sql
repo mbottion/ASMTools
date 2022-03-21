@@ -219,3 +219,16 @@ select
   ,voting_files
 from 
   v$asm_diskgroup;
+
+column free_TB format 990D99
+column total_TB format 990D99
+column usable_file_TB format 990D99
+column percentage_free format a20
+SELECT 
+   name
+  ,(free_mb/1024/1024) /case type when 'HIGH' then 3 when 'NORMAL' then 2 else 1 end free_TB
+  ,(total_mb/1024/1024) /case type when 'HIGH' then 3 when 'NORMAL' then 2 else 1 end total_TB
+  ,(usable_file_mb/1024/1024)  usable_file_TB
+  ,to_char(free_mb/total_mb*100,'990D99') || ' %' as percentage_free 
+FROM 
+  v$asm_diskgroup;
