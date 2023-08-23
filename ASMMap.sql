@@ -232,3 +232,20 @@ SELECT
   ,to_char(free_mb/total_mb*100,'990D99') || ' %' as percentage_free 
 FROM 
   v$asm_diskgroup;
+
+Prompt
+Prompt ===============================================================
+Prompt Sparse disk group USAGE (Physical space)
+Prompt ===============================================================
+Prompt
+
+col phys_TB format 990D99 heading "Physical (TB)"
+col all_TB  format 990D99 heading "Allocated (TB)"
+col pct     format a20    heading "Free %"
+select
+   TOTAL_MAT_MB/1024/1024/3     phys_TB
+  ,ALLOCATED_MAT_MB/1024/1024/3 all_TB
+  ,to_char( ((TOTAL_MAT_MB-ALLOCATED_MAT_MB)/TOTAL_MAT_MB)*100,'990D99' ) || ' %' as pct
+from
+  V$ASM_DISKGROUP_SPARSE ;
+
