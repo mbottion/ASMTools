@@ -245,7 +245,7 @@ col pct     format a20    heading "Free %"
 select
    TOTAL_MAT_MB/1024/1024/3     phys_TB
   ,ALLOCATED_MAT_MB/1024/1024/3 all_TB
-  ,to_char( ((TOTAL_MAT_MB-ALLOCATED_MAT_MB)/TOTAL_MAT_MB)*100,'990D99' ) || ' %' as pct
+  ,to_char( ((TOTAL_MAT_MB-ALLOCATED_MAT_MB)/TOTAL_MAT_MB)*100,'9990D99' ) || ' %' as pct
 from
   V$ASM_DISKGROUP_SPARSE ;
 
