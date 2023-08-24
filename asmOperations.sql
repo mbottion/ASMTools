@@ -5,12 +5,14 @@ col prog format a30 heading "Progress"
 col est_work format 999G999G999
 col sofar    format 999G999G999
 col est_minutes format 999G999
+col error_code format a15
 
 
 select
    o.inst_id
   ,g.name
   ,o.operation
+  ,o.pass
   ,power
   ,o.state
   ,o.sofar
@@ -30,3 +32,4 @@ order by
  ,o.group_number
  ,o.state
 /
+
