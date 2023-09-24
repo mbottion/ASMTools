@@ -100,6 +100,7 @@ compute sum of Virtual_Size_TB Allocated_Size_TB Used_Size_TB on report
 select
    clone_type
   ,db_unique_name
+  ,clone_suffix
   ,Virtual_Size_TB
   ,Allocated_Size_TB
   ,Used_Size_TB
