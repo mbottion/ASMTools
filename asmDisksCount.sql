@@ -1,11 +1,6 @@
-def d=/home/oracle/mbo/scaleDisks
 set trimspool on
 set term off
-col outFile new_value outFile
-select '&d/stat_' || to_char(sysdate,'yyyymmdd_hh24') || '.txt' outFile from dual
-/
 set term on
-spool &outFile
 set lines 200
 set pages 100
 col cell format a20
@@ -50,4 +45,3 @@ order by
    substr(cell,15,2)
   ,group_name
 /
-spool off
