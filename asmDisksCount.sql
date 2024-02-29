@@ -33,8 +33,8 @@ from (
             from 
               v$asm_disk d
            )
---      where
---        cell like 'CDG%'
+      where
+        cell like '%EXDCL%'
      )
 group by
    cell
